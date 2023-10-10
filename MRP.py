@@ -3,6 +3,7 @@ import pandas as pd
 import datetime as dt
 from tkinter import *
 import math
+from tkinter import messagebox
 
 #数据库连接
 coon = pyodbc.connect('DRIVER={SQL Server};SERVER=LAPTOP-4EJQ0G73;DATABASE=MRP;UID=sa;PWD=1234567890Wyx')
@@ -62,8 +63,6 @@ def material(mat,end_date,num):
             mat_list.append([df.loc[i,'子物料名称'],df.loc[i,'调配方式'],require,start_date,date_process(end_date,0)])
     return
 
-material('眼镜','2022-5-29',100)
-#print(mat_list)
 
 
 
@@ -73,14 +72,45 @@ material('眼镜','2022-5-29',100)
 #GUI
 top = Tk()
 top.title('MRP计算')
-top.geometry('400x700+650+120')
-lb = Label(top,text='neirong')
-lb.grid(column=1,row=1)
-lb = Label(top,text='neirong')
-lb.grid(column=1,row=2)
-lb = Label(top,text='neirong')
-lb.grid(column=1,row=3)
-txt = Entry(top)
-txt.grid(column=2,row=2,ipady=4)
-print(txt.grid_info())
+top.geometry('+650+120')
+# background_image = top.PhotoImage(file='R-C.png')
+# background_label = Label(top, image=background_image)
+# background_label.place(relwidth=1, relheight=1)
+canvas = Canvas(top, height=700, width=400)
+canvas.pack()
+
+label1 = Label(top,text='物料名称',font=('微软雅黑',14))
+label1.place(relx=0.2, rely=0.01, relwidth=0.2, relheight=0.05, anchor='n')
+label2 = Label(top,text='需求数',font=('微软雅黑',14))
+label2.place(relx=0.48,rely=0.01,relwidth=0.2, relheight=0.05, anchor='n')
+label2 = Label(top,text='日期',font=('微软雅黑',14))
+label2.place(relx=0.78,rely=0.01,relwidth=0.2, relheight=0.05, anchor='n')
+def check():
+    if txt1.get() == "":
+        messagebox.showwarning("输入不正确")
+        return False
+    else:
+        return True
+txt1 = Entry(top,font=14,validate="focusout",validatecommand=check)
+txt1.place(relx=0.09,rely=0.05,relwidth=0.22, relheight=0.05)
+txt2 = Entry(top,font=14,validate="focusout",validatecommand=check)
+txt2.place(relx=0.38,rely=0.05,relwidth=0.22, relheight=0.05)
+txt3 = Entry(top,font=14 ,validate="focusout",validatecommand=check)
+txt3.place(relx=0.66,rely=0.05,relwidth=0.28, relheight=0.05)
+
+
+
+def callback():
+    if txt1.get() == "" or txt2.get() == "" or txt3.get() == "":
+        messagebox.showwarning("输入不正确")
+    else :
+        global str1,epoch,str3
+        str1 = txt1.get()
+        epoch = int(txt2.get())
+        str3 = txt3.get()
+    material(str1,date_process(str3,1),epoch)
+    print(mat_list)
+# 使用按钮控件调用函数
+b = Button(top, text="确定",font=('微软雅黑',14), command=callback)
+b.place(relx = 0.35,rely= 0.15,relwidth= 0.30, relheight=0.07)
 top.mainloop()
