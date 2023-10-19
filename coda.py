@@ -1,4 +1,6 @@
 #数据库连接import pyodbc
+import tkinter
+
 import pandas as pd
 import datetime as dt
 from tkinter import *
@@ -29,6 +31,30 @@ col = cursor.description
 length = len(col)
 cols = [col[i][0] for i in range(length)]
 warehouse = pd.DataFrame([list(i) for i in data],columns=cols)
+cursor = coon.cursor()
+#数据规范化
+cursor.execute("SELECT * FROM formula")
+data = cursor.fetchall()
+col = cursor.description
+length = len(col)
+cols = [col[i][0] for i in range(length)]
+df = pd.DataFrame([list(i) for i in data],columns=cols)
+
+for i in df.index:
+    if (pd.isna(df.loc[i,'资产类汇总序号'])):
+        df.loc[i, '资产类汇总序号']=-1
+    df.loc[i, '变量名'] = str(df.loc[i, '变量名']).strip()
+formu=[]
+global count
+def search(name):
+    for i in df.index:
+        if (df.loc[i,'变量名']==name):
+            count =df.loc[i,'序号']
+    for i in df.index:
+        if(int(df.loc[i,'资产类汇总序号'])==count):
+            formu.append(df.loc[i,'变量名'])
+
+
 for i in warehouse.index:
     warehouse.loc[i,'子物料名称']=str(warehouse.loc[i,'子物料名称']).strip()
 
@@ -147,10 +173,26 @@ def selection(self, event):
     print('选择的是：' + str(event.widget.selection()))  # event.widget获取Treeview对象
     return "break"
 
+def pro_string(a):
+    string = ""
+    string += a
+    string += '='
+    string += formu[0]
+    for i in formu:
+        string += '+'
+        string += i
+    return string
 
 def callback3(top2,txt4_value):
     print("txt4_value:", txt4_value)
-    top2.destroy()
+    search(txt4_value)
+    string = pro_string(txt4_value)
+    print(string)
+    txt = Text(top2)
+    txt.delete("1.0",tkinter.END)
+    txt.insert(tkinter.END,string)
+    txt.place(relx = 0.1,rely= 0.2,relwidth= 0.70, relheight=0.05)
+
     print("callback3 called")
 
 def on_confirm(top2,txt4_value):
@@ -180,3 +222,11 @@ c = Button(top, text="公式表计算",font=('微软雅黑',14),command=lambda :
 b.place(relx = 0.25,rely= 0.15,relwidth= 0.30, relheight=0.07)
 c.place(relx = 0.65,rely= 0.15,relwidth= 0.30, relheight=0.07)
 top.mainloop()
+cursor = coon.cursor()
+#数据规范化
+cursor.execute("SELECT * FROM formula")
+data = cursor.fetchall()
+col = cursor.description
+length = len(col)
+cols = [col[i][0] for i in range(length)]
+df = pd.DataFrame([list(i) for i in data],columns=cols)
